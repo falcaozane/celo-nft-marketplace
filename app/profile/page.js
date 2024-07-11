@@ -9,6 +9,7 @@ import NFTTile from "@/components/nftCard/NFTCard";
 export default function Profile() {
   const [items, setItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState("0");
+  const [loading, setLoading] = useState(true);
   const { isConnected, userAddress, signer } = useContext(WalletContext);
 
   async function getNFTitems() {
@@ -51,8 +52,10 @@ export default function Profile() {
         const { itemsArray, sumPrice } = await getNFTitems();
         setItems(itemsArray);
         setTotalPrice(sumPrice);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching NFT items:", error);
+        setLoading(false);
       }
     };
 
@@ -64,36 +67,42 @@ export default function Profile() {
       <div className="flex flex-col items-center justify-center flex-grow">
         <div className="max-w-7xl w-full mx-auto p-4 flex-grow overflow-y-auto">
           {isConnected ? (
-            <>
-              <div className="my-5 text-center">
-                <h2 className="text-2xl font-bold text-gray-800">Wallet Address:</h2>
-                <p className="text-sm md:text-xl font-bold text-gray-800">{userAddress}</p>
+            loading ? (
+              <div className="flex items-center justify-center h-screen">
+                <div className="w-36 h-36 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
               </div>
-              <div className="flex justify-between my-5">
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800">Number of NFTs:</h2>
-                  <p className="text-xl font-bold text-gray-800">{items?.length}</p>
+            ) : (
+              <>
+                <div className="my-5 text-center">
+                  <h2 className="text-2xl font-bold text-gray-800">Wallet Address:</h2>
+                  <p className="text-sm md:text-xl font-bold text-gray-800">{userAddress}</p>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800">Total Value:</h2>
-                  <p className="text-xl font-bold text-gray-800">{totalPrice} Celo</p>
+                <div className="flex justify-between my-5">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800">Number of NFTs:</h2>
+                    <p className="text-xl font-bold text-gray-800">{items?.length}</p>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-800">Total Value:</h2>
+                    <p className="text-xl font-bold text-gray-800">{totalPrice} Celo</p>
+                  </div>
                 </div>
-              </div>
-              <div className="mt-10">
-                <h2 className="text-4xl text-center text-gray-800 mb-7 uppercase">Your NFTs</h2>
-                {items?.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {items?.map((value, index) => (
-                      <NFTTile item={value} key={index} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-2xl min-h-screen font-bold text-red-500 text-center my-4">
-                    You don&apos;t have any NFT...
-                  </div>
-                )}
-              </div>
-            </>
+                <div className="mt-10">
+                  <h2 className="text-4xl text-center text-gray-800 mb-7 uppercase">Your NFTs</h2>
+                  {items?.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                      {items?.map((value, index) => (
+                        <NFTTile item={value} key={index} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-2xl min-h-screen font-bold text-red-500 text-center my-4">
+                      You don&apos;t have any NFT...
+                    </div>
+                  )}
+                </div>
+              </>
+            )
           ) : (
             <div className="text-3xl font-bold text-red-500 text-center my-4 py-10 h-screen">
               You are not connected...

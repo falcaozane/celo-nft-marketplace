@@ -15,6 +15,8 @@ export default function NFTPage() {
   const [item, setItem] = useState();
   const [msg, setmsg] = useState();
   const [btnContent, setBtnContent] = useState("Buy NFT");
+  const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
   const { isConnected, userAddress, signer } = useContext(WalletContext);
   const router = useRouter();
 
@@ -63,9 +65,11 @@ export default function NFTPage() {
       try {
         const itemTemp = await getNFTData();
         setItem(itemTemp);
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching NFT items:", error);
         setItem(null);
+        setLoading(false);
       }
     }
 
@@ -83,13 +87,12 @@ export default function NFTPage() {
       const salePrice = ethers.parseUnits(item.price, "ether").toString();
       setBtnContent("Processing...");
       setmsg("Buying the NFT... Please Wait (Up to 5 mins)");
-      toast.info("Buying the NFT... Please Wait (Up to 5 mins)")
+      toast.info("Buying the NFT... Please Wait (Up to 5 mins)");
       let transaction = await contract.executeSale(tokenId, {
         value: salePrice,
       });
       await transaction.wait();
-      toast.success("You successfully bought the NFT!")
-      //alert("You successfully bought the NFT!");
+      toast.success("You successfully bought the NFT!");
       setmsg("");
       setBtnContent("Buy NFT");
       router.push("/profile");
@@ -98,55 +101,81 @@ export default function NFTPage() {
     }
   }
 
+  const PlaceholderCard = () => (
+    <div className="w-full h-80 bg-gray-100 border border-slate-200 animate-pulse rounded-lg"></div>
+  );
+
   return (
     <div className="flex flex-col h-screen bg-slate-300">
       <div className="flex flex-col items-center justify-center flex-grow">
         {isConnected ? (
-          <div className="bg-white max-w-6xl w-full mx-2 md:mx-auto shadow-lg rounded-lg p-4 overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="w-full ">
-                <Image src={item?.image} alt="" width={800} height={520} className="w-full h-auto rounded-lg object-cover" loading="lazy" />
-              </div>
-              <div className="w-full md:w-1/2 flex flex-col justify-between md:p-4">
-                <div className="space-y-4">
-                  <div className="text-xl font-bold text-orange-600">
-                    <p>Name: {item?.name}</p>
-                  </div>
-                  <div className="text-xl font-bold text-orange-600">
-                    <p>Description: {item?.description}</p>
-                  </div>
-                  <div className="text-xl font-bold text-orange-600">
-                    <p>Price: {item?.price} Celo</p>
-                  </div>
-                  <div className="flex text-xl font-bold text-orange-600 items-center">
-                    <p>Seller: </p><p className="text-sm mx-2">{item?.seller}</p>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <div className="text-red-600 text-lg">{msg}</div>
-                  {item?.isListed ? (
-                    userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
-                      <div className="text-red-600 font-bold">You already own this NFT!</div>
-                    ) : (
-                      <button
-                        onClick={buyNFT}
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                      >
-                        {btnContent === "Processing..." && (
-                          <span className="spinner" />
-                        )}
-                        {btnContent}
-                      </button>
-                    )
-                  ) : (
-                    <div className="text-red-600 font-bold">
-                      <p className="text-sm md:text-xl">This NFT was bought by: {item?.owner}</p>
-                    </div>
+          loading ? (
+            <div className="flex items-center justify-center h-screen">
+              <PlaceholderCard />
+            </div>
+          ) : (
+            <div className="bg-white max-w-6xl w-full mx-2 md:mx-auto shadow-lg rounded-lg p-4 overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="w-full">
+                  {imageLoading && (
+                    <div className="w-full h-80 bg-gray-100 border border-slate-200 animate-pulse rounded-lg"></div>
                   )}
+                  <Image
+                    src={item?.image}
+                    alt=""
+                    width={800}
+                    height={520}
+                    className={`w-full h-auto rounded-lg object-cover ${imageLoading ? 'hidden' : 'block'}`}
+                    loading="lazy"
+                    onLoad={() => setImageLoading(false)}
+                  />
+                </div>
+                <div className="w-full md:w-1/2 flex flex-col justify-between md:p-4">
+                  <div className="space-y-4">
+                    <div className="text-xl font-bold text-orange-600">
+                      <p>Name: {item?.name}</p>
+                    </div>
+                    <div className="text-xl font-bold text-orange-600">
+                      <p>Description: {item?.description}</p>
+                    </div>
+                    <div className="text-xl font-bold text-orange-600">
+                      <p>Price: {item?.price} Celo</p>
+                    </div>
+                    <div className="flex text-xl font-bold text-orange-600 items-center">
+                      <p>Seller: </p>
+                      <p className="text-sm mx-2">{item?.seller}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-center">
+                    <div className="text-red-600 text-lg">{msg}</div>
+                    {item?.isListed ? (
+                      userAddress.toLowerCase() === item?.seller.toLowerCase() ? (
+                        <div className="text-red-600 font-bold">
+                          You already own this NFT!
+                        </div>
+                      ) : (
+                        <button
+                          onClick={buyNFT}
+                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        >
+                          {btnContent === "Processing..." && (
+                            <span className="spinner" />
+                          )}
+                          {btnContent}
+                        </button>
+                      )
+                    ) : (
+                      <div className="text-red-600 font-bold">
+                        <p className="text-sm md:text-xl">
+                          This NFT was bought by: {item?.owner}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )
         ) : (
           <div className="text-white text-2xl">You are not connected...</div>
         )}

@@ -23,6 +23,16 @@ export default function SellNFT() {
   async function onFileChange(e) {
     try {
       const file = e.target.files[0];
+      const fileType = file.type;
+
+      // Check if the file is a valid image type (jpeg, jpg, png)
+      const validImageTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!validImageTypes.includes(fileType)) {
+        updateMessage("Please upload a valid image file (JPEG, JPG, PNG).");
+        toast.error("Please upload a valid image file (JPEG, JPG, PNG).")
+        return;
+      }
+
       const data = new FormData();
       data.set("file", file);
       setBtn(false);
@@ -35,6 +45,7 @@ export default function SellNFT() {
       }
     } catch (e) {
       console.log("Error during file upload...", e);
+      toast.error("Error during file upload...")
     }
   }
 
@@ -85,11 +96,13 @@ export default function SellNFT() {
       setBtn(false);
       updateMessage("");
       updateFormParams({ name: "", description: "", price: "" });
-      toast.success("Successfully listed your NFT!")
+      toast.success("Successfully listed your NFT!");
       //alert("Successfully listed your NFT!");
       router.push("/marketplace");
     } catch (e) {
       alert("Upload error", e);
+      toast.error("Didn't Mint NFT")
+      router.push("/profile");
     }
   }
 
