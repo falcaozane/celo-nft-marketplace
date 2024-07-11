@@ -12,7 +12,7 @@ export default function NFTCard({ item }) {
       : item.description;
 
   return (
-    <div className="relative overflow-hidden rounded-lg group w-96 h-80">
+    <div className="relative overflow-hidden rounded-lg group w-full md:w-96 h-80">
       <div className="relative w-full h-full transition-transform duration-300 ease-in-out group-hover:scale-100">
         <Image src={IPFSUrl} alt="" layout="fill" objectFit="cover" className="rounded-lg md:mx-4" />
       </div>
