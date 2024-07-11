@@ -16,7 +16,6 @@ export default function NFTPage() {
   const [msg, setmsg] = useState();
   const [btnContent, setBtnContent] = useState("Buy NFT");
   const [loading, setLoading] = useState(true);
-  const [imageLoading, setImageLoading] = useState(true);
   const { isConnected, userAddress, signer } = useContext(WalletContext);
   const router = useRouter();
 
@@ -102,7 +101,7 @@ export default function NFTPage() {
   }
 
   const PlaceholderCard = () => (
-    <div className="w-full h-80 bg-gray-100 border border-slate-200 animate-pulse rounded-lg"></div>
+    <div className="w-full md:h-80 bg-gray-500 border border-slate-400 animate-pulse rounded-lg"></div>
   );
 
   return (
@@ -117,17 +116,13 @@ export default function NFTPage() {
             <div className="bg-white max-w-6xl w-full mx-2 md:mx-auto shadow-lg rounded-lg p-4 overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="w-full">
-                  {imageLoading && (
-                    <div className="w-full h-80 bg-gray-100 border border-slate-200 animate-pulse rounded-lg"></div>
-                  )}
                   <Image
                     src={item?.image}
                     alt=""
                     width={800}
                     height={520}
-                    className={`w-full h-auto rounded-lg object-cover ${imageLoading ? 'hidden' : 'block'}`}
+                    className="w-full h-auto rounded-lg object-cover"
                     loading="lazy"
-                    onLoad={() => setImageLoading(false)}
                   />
                 </div>
                 <div className="w-full md:w-1/2 flex flex-col justify-between md:p-4">
