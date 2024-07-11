@@ -97,6 +97,8 @@ export default function NFTPage() {
       router.push("/profile");
     } catch (e) {
       console.log("Buying Error: ", e);
+      toast.error("Buying Error please check wallet balance")
+      router.push("/marketplace")
     }
   }
 
